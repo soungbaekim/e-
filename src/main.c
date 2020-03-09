@@ -52,12 +52,10 @@
    printf ("execute_curl\n");
 
    /* Check semaphore for avaliability */
-   /*
    int err = sem_wait (sema);
    if (err != 0) {
      printf ("sema wait failed\n");
    }
-   */
 
    printf ("form url\n");
    /* Form URL */
@@ -129,14 +127,10 @@ int main (int argc, char **argv) {
   /* Init status */
   status_init ();
   /* Init sema */
-  sema = sem_open ("request_sema", O_CREAT, 0644, MAX_REQUESTS);
+  sema = sem_open ("/request_sema", O_CREAT, 0644, MAX_REQUESTS);
   if (sema == SEM_FAILED) {
     printf ("sema init failed\n");
   }
-  if (sema == 0) {
-    printf ("semma is 0\n");
-  }
-  printf( "semmea\n");
   /* Init curl */
   curl_global_init (CURL_GLOBAL_ALL);
   /* HTTPS Authorization Header */
