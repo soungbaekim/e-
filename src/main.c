@@ -17,14 +17,14 @@
  #include <semaphore.h>
 
  #include "status.h"
+ #include "base64.h"
 
 
  #define UUID_LENGTH 64
  #define MAX_REQUESTS 5
 
-
  /* HTTPS Authorization Header */
- struct curl_slist *auth_list = NULL;
+ char *auth = "Authorization: ";
  /* URL */
  char *url = "https://challenges.qluv.io/items/";
  /* Semaphore to stay under MAX_REQUESTS */
@@ -54,11 +54,22 @@
      printf ("sema wait failed ###########################\n");
    }
 
-   printf ("form url\n");
    /* Form URL */
    char *formed_url = malloc (strlen (url) + strlen (item->uuid) + 1);
    strcpy (formed_url, url);
    strcat (formed_url, item->uuid);
+
+   /* HTTPS Authorization Header */
+   int encode_len = Base64encode_len (strlen (item->uuid));
+   char base64[encode_len+1];
+   Base64encode (base64, item->uuid, strlen(item->uuid));
+
+   char *header = malloc (strlen (auth) + encode_len + 1);
+   strcpy (header, auth);
+   strcat (header, base64);
+
+   struct curl_slist *auth_list = NULL;
+   auth_list = curl_slist_append (auth_list, header);
 
 
    /* curl */
@@ -132,8 +143,7 @@ int main (int argc, char **argv) {
   }
   /* Init curl */
   curl_global_init (CURL_GLOBAL_ALL);
-  /* HTTPS Authorization Header */
-  auth_list = curl_slist_append (auth_list, "Authorization: YTZiNTQzODYtYmRjYS00ZWUxLWJjNjUtZmY2NDM2YmFjNTcx");
+
 
 
   /* Loop */
