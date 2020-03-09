@@ -16,9 +16,9 @@ struct status_elem {
 struct status_head {
   struct status_elem *start;
 
-  //bool cleanup;
-  //int ref_count;
-  //sem_t *wait;
+  bool cleanup;
+  int ref_count;
+  sem_t *wait;
 
   pthread_mutex_t status_lock;
 };
@@ -26,6 +26,6 @@ struct status_head {
 
 void status_init ();
 struct status_elem *status_get (char *uuid);
-//void status_inc ();
-//void status_dec ();
+void status_inc ();
+void status_dec ();
 void status_cleanup ();

@@ -24,16 +24,14 @@ void status_init () {
   }
 
   status->start = NULL;
-  //status->ref_count = 0;
-  //status->cleanup = false;
+  status->ref_count = 0;
+  status->cleanup = false;
 
   /* Init sema */
-  /*
   status->wait = sem_open ("wait_sema", O_CREAT, 0644, 0);
   if (status->wait == SEM_FAILED) {
     printf ("wait_sema init failed\n");
   }
-  */
 
   printf("status_init() complete\n");
 }
@@ -82,31 +80,28 @@ struct status_elem *status_get (char *uuid) {
 }
 
 /* Increments the ref_count by one */
-/*
 void status_inc () {
   pthread_mutex_lock(&status->status_lock);
   status->ref_count++;
   printf ("inc: %d\n", status->ref_count);
   pthread_mutex_unlock(&status->status_lock);
-}*/
+}
 
 /* Decrements the ref_count by one */
-/*
 void status_dec () {
   pthread_mutex_lock(&status->status_lock);
   status->ref_count--;
   printf ("dec: %d\n", status->ref_count);
-  if (status->ref_count <= 0 && status->cleanup) {
+  if (status->ref_count == 0 && status->cleanup) {
     sem_post (status->wait);
   }
   pthread_mutex_unlock(&status->status_lock);
-}*/
+}
 
 /* Free and destory allocated memory */
 void status_cleanup () {
   printf ("status_cleanup\n");
   /* Wait for all processes */
-  /*
   pthread_mutex_lock(&status->status_lock);
   printf ("status_cleanup: %d\n", status->ref_count);
   if (status->ref_count != 0) {
@@ -115,7 +110,6 @@ void status_cleanup () {
     pthread_mutex_unlock(&status->status_lock);
     sem_wait (status->wait);
   }
-  */
 
   /* Free each elem */
   struct status_elem *cur = status->start;
@@ -132,6 +126,6 @@ void status_cleanup () {
 
   /* Free head */
   pthread_mutex_destroy (&status->status_lock);
-  //sem_close (status->wait);
+  sem_close (status->wait);
   free(status);
 }

@@ -112,7 +112,7 @@
    printf ("{UUID: %s -- DATA: %s}\n", uuid, ret);
 
    /* Thread Exit */
-   //status_dec ();
+   status_dec ();
    pthread_exit (NULL);
  }
 
@@ -153,8 +153,7 @@ int main (int argc, char **argv) {
     strcpy (cpy, buf);
 
 
-    //status_inc ();
-
+    status_inc ();
     /* Start new thread on thread_start() */
     pthread_create (&thread, NULL, &thread_start, cpy);
   }
@@ -168,6 +167,8 @@ exit:
   curl_global_cleanup ();
   /* Close sema */
   sem_close (sema);
+
+  printf ("Done\n");
 
   return 0;
 }
