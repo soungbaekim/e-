@@ -24,7 +24,7 @@
 
 
  /* HTTPS Authorization Header */
- struct curl_slist *auth_list;
+ struct curl_slist *auth_list = NULL;
  /* URL */
  char *url = "https://challenges.qluv.io/items/";
  /* Semaphore to stay under MAX_REQUESTS */
@@ -41,9 +41,6 @@
    item->data = malloc (strlen (ptr) + 1);
    strcpy (item->data, ptr);
 
-   /* Release sema */
-   sem_post (sema);
-
    return strlen (ptr);
  }
 
@@ -54,7 +51,7 @@
    /* Check semaphore for avaliability */
    int err = sem_wait (sema);
    if (err != 0) {
-     printf ("sema wait failed\n");
+     printf ("sema wait failed ###########################\n");
    }
 
    printf ("form url\n");
@@ -89,6 +86,8 @@
    res = curl_easy_perform (handle);
    /* Cleanup handle */
    curl_easy_cleanup (handle);
+   /* Release sema */
+   sem_post (sema);
    /* Free Memory */
    free (formed_url);
  }
