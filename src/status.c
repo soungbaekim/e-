@@ -5,12 +5,18 @@
 
 #include "status.h"
 
+#ifdef DEBUG
+# define DEBUG_PRINT(x) printf x
+#else
+# define DEBUG_PRINT(x) do {} while (0)
+#endif
+
 
 struct status_head *status;
 
 /* Initializing status - should be called once in the begining */
 void status_init () {
-  printf ("initializing status...");
+  DEBUG_PRINT (("initializing status...\n"));
   /* Allocate memory for status head */
   status = malloc (sizeof (struct status_head));
   if (status == NULL) {
@@ -35,12 +41,12 @@ void status_init () {
     printf ("wait_sema init failed\n");
   }
 
-  printf ("... complete\n");
+  DEBUG_PRINT (("... complete\n"));
 }
 
 /* Return the corresponding item struct for the given uuid */
 struct status_elem *status_get (char *uuid) {
-  printf ("status_get: %s\n", uuid);
+  DEBUG_PRINT (("status_get: %s\n", uuid));
   /* Acquire lock for search */
   pthread_mutex_lock (&status->status_lock);
 
@@ -51,12 +57,12 @@ struct status_elem *status_get (char *uuid) {
     prev = cur;
 
     if (strcmp (cur->uuid, uuid) == 0) {
-      printf ("found: %s\n", uuid);
+      DEBUG_PRINT (("found: %s\n", uuid));
       goto done;
     }
     cur = cur->next;
   }
-  printf ("not found: %s\n", uuid);
+  DEBUG_PRINT (("not found: %s\n", uuid));
   /* Add a new elem for this uuid */
   cur = malloc (sizeof (struct status_elem));
   pthread_mutex_init (&cur->item_lock, NULL);
@@ -84,7 +90,7 @@ struct status_elem *status_get (char *uuid) {
 void status_inc () {
   pthread_mutex_lock (&status->status_lock);
   status->ref_count++;
-  printf ("inc: %d\n", status->ref_count);
+  DEBUG_PRINT (("inc: %d\n", status->ref_count));
   pthread_mutex_unlock (&status->status_lock);
 }
 
@@ -92,7 +98,7 @@ void status_inc () {
 void status_dec () {
   pthread_mutex_lock (&status->status_lock);
   status->ref_count--;
-  printf ("dec: %d\n", status->ref_count);
+  DEBUG_PRINT (("dec: %d\n", status->ref_count));
   if (status->ref_count == 0 && status->cleanup) {
     sem_post (status->wait);
   }
@@ -101,16 +107,16 @@ void status_dec () {
 
 /* Free and destory allocated memory */
 void status_cleanup () {
-  printf ("cleaning status...\n");
+  DEBUG_PRINT (("cleaning status...\n"));
   /* Wait for all processes */
   pthread_mutex_lock (&status->status_lock);
-  printf ("status_cleanup: %d\n", status->ref_count);
+  DEBUG_PRINT (("status_cleanup: %d\n", status->ref_count));
   if (status->ref_count != 0) {
-    printf ("status waiting...\n");
+    DEBUG_PRINT (("status waiting...\n"));
     status->cleanup = true;
     pthread_mutex_unlock (&status->status_lock);
     sem_wait (status->wait);
-    printf ("status continuing...\n");
+    DEBUG_PRINT (("status continuing...\n"));
   }
 
   /* Free each elem */
@@ -130,5 +136,5 @@ void status_cleanup () {
   pthread_mutex_destroy (&status->status_lock);
   sem_close (status->wait);
   free (status);
-  printf ("... complete\n");
+  DEBUG_PRINT (("... complete\n"));
 }

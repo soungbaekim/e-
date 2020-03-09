@@ -19,6 +19,12 @@
  #include "status.h"
  #include "base64.h"
 
+ #ifdef DEBUG
+ # define DEBUG_PRINT(x) printf x
+ #else
+ # define DEBUG_PRINT(x) do {} while (0)
+ #endif
+
 
  #define UUID_LENGTH 64
  #define MAX_REQUESTS 5
@@ -46,7 +52,7 @@
 
 /* Makes the GET Request using libcurl */
  void execute_curl (struct status_elem *item) {
-   printf ("execute_curl\n");
+   DEBUG_PRINT (("execute_curl\n"));
 
    /* Check semaphore for avaliability */
    int err = sem_wait (sema);
@@ -78,8 +84,11 @@
 
    /* Init curl handle */
    handle = curl_easy_init ();
+
+   #ifdef DEBUG
    /* Verbose curl protocols */
    curl_easy_setopt (handle, CURLOPT_VERBOSE, (long) 1);
+   #endif
    /* Set Url */
    curl_easy_setopt (handle, CURLOPT_URL, formed_url);
    /* Set Authorization Header */
@@ -105,7 +114,7 @@
  /* Function for every request thread */
  void *thread_start (void *arg) {
    char *uuid = (char *) arg;
-   printf ("thread_start: %s\n", uuid);
+   DEBUG_PRINT (("thread_start: %s\n", uuid));
 
    char *ret;
    struct status_elem *item = status_get (uuid);
@@ -132,7 +141,7 @@
  */
 int main (int argc, char **argv) {
   /* Initialize */
-  printf ("Initializing...\n");
+  DEBUG_PRINT (("Initializing...\n"));
   /* Init status */
   status_init ();
   /* Init sema */
@@ -165,7 +174,7 @@ int main (int argc, char **argv) {
 
 exit:
   /* Exit */
-  printf ("Exiting...\n");
+  DEBUG_PRINT (("Exiting...\n"));
   /* Cleanup status */
   status_cleanup ();
   /* Cleanup curl */
@@ -173,7 +182,6 @@ exit:
   /* Close sema */
   sem_close (sema);
 
-  printf ("... GOODBYE!\n");
-
+  DEBUG_PRINT (("GOODBYE!\n"));
   return 0;
 }
