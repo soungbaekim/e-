@@ -31,7 +31,7 @@
  sem_t *sema;
 
 
- /* Callback fn to retrieve data from request
+ /* Callback function to retrieve data from request
   * Receives item as userdata because of CURLOPT_WRITEDATA
   */
  static size_t
@@ -51,7 +51,7 @@
    /* Check semaphore for avaliability */
    int err = sem_wait (sema);
    if (err != 0) {
-     printf ("sema wait failed ###########################\n");
+     printf ("sema wait failed\n");
    }
 
    /* Form URL */
@@ -91,8 +91,6 @@
    /* Set a pointer to our struct to pass to the callback */
    curl_easy_setopt (handle, CURLOPT_WRITEDATA, item);
 
-
-
    /* Perform curl */
    res = curl_easy_perform (handle);
    /* Cleanup handle */
@@ -101,6 +99,7 @@
    sem_post (sema);
    /* Free Memory */
    free (formed_url);
+   free (header);
  }
 
  /* Function for every request thread */
@@ -124,13 +123,13 @@
 
    /* Thread Exit */
    status_dec ();
+   free (uuid);
    pthread_exit (NULL);
  }
 
-/*
-  Main keeps running to constantly take in more inputs to call the api with
-  - Each call to the api creates a new thread
-*/
+/* Main function: responsible for taking in
+ * inputs and creating new threads for requests
+ */
 int main (int argc, char **argv) {
   /* Initialize */
   printf ("Initializing...\n");
@@ -144,8 +143,6 @@ int main (int argc, char **argv) {
   /* Init curl */
   curl_global_init (CURL_GLOBAL_ALL);
 
-
-
   /* Loop */
   pthread_t thread;
 
@@ -157,12 +154,10 @@ int main (int argc, char **argv) {
     if (strcmp (buf, "exit") == 0) {
       goto exit;
     }
-
     /* Prepare string for new thread */
     cpy = malloc (strlen (buf) + 1);
     strcpy (cpy, buf);
-
-
+    /* Increment ref_count */
     status_inc ();
     /* Start new thread on thread_start() */
     pthread_create (&thread, NULL, &thread_start, cpy);
@@ -178,7 +173,7 @@ exit:
   /* Close sema */
   sem_close (sema);
 
-  printf ("Done\n");
+  printf ("... GOODBYE!\n");
 
   return 0;
 }

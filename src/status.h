@@ -12,7 +12,6 @@ struct status_elem {
   pthread_mutex_t item_lock;
 };
 
-
 struct status_head {
   struct status_elem *start;
 
@@ -22,7 +21,6 @@ struct status_head {
 
   pthread_mutex_t status_lock;
 };
-
 
 void status_init ();
 struct status_elem *status_get (char *uuid);
