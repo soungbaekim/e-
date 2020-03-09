@@ -23,6 +23,16 @@ This was my first stab at writing my own Makefile so please excuse the mess.
 `make`: builds executables for normal `run` and `debug`\
 `make run`: runs the program without DEBUG_PRINT\
 `make debug`: runs the program with DEBUG_PRINT\
-`make test`: runs the program and sets input as res/uuids.txt
+`make test`: runs the program and sets input as res/uuids.txt\
+`make clean`: discards /build directory\
+`exit`: exits the program
 
 The program can take in as many inputs as it wants as long as the uuids are separated by a whitespace. Thus, the user can input a single uuid or a batch of uuids (separated by whitespace).
+
+## Note
+Since threads are independently scheduled by the operating system, outputs may not be in the same order as input
+For example, inputting `1 2 3 4 5 6 7 8 9 10` after running `make run` may return results not in ascending order.
+
+
+
+
