@@ -25,7 +25,7 @@ This was my first stab at writing my own Makefile so please excuse the mess.
 `make debug`: runs the program with DEBUG_PRINT\
 `make test`: runs the program and sets input as res/uuids.txt\
 `make clean`: discards /build directory\
-`exit`: exits the program
+`exit`: exits the program (after `make run`)
 
 The program can take in as many inputs as it wants as long as the uuids are separated by a whitespace. Thus, the user can input a single uuid or a batch of uuids (separated by whitespace).
 
