@@ -16,3 +16,13 @@ Each uuid is put into a struct with some other metadata that connected to other 
 Since the status struct are all in a singly linked list, it takes a considerable time to traverse through the entire list every time a request is made. This distance get increasing worse as more requests with new uuids come in since it will grow the status list. This can be improved upon by creating a data structure to index the uuids such that it takes fewer comparisons to find the correct struct.
 
 I've also noticed that here and there, one of the result would come out NULL. I believe that this is caused by the delay in receiving data from the request. Since this happens very rarely, I did not implementing a fix for it. However, if I was to implement a fix, I would add another semaphore to each struct elem such that the parent thread knows when the write_callback has finished.
+
+## Building and Running
+This was my first stab at writing my own Makefile so please excuse the mess.
+
+`make`: builds executables for normal `run` and `debug`
+`make run`: runs the program without DEBUG_PRINT
+`make debug`: runs the program with DEBUG_PRINT
+`make test`: runs the program and sets input as res/uuids.txt
+
+The program can take in as many inputs as it wants as long as the uuids are separated by a whitespace. Thus, the user can input a single uuid or a batch of uuids (separated by whitespace).
