@@ -35,6 +35,9 @@
  char *url = "https://challenges.qluv.io/items/";
  /* Semaphore to stay under MAX_REQUESTS */
  sem_t *sema;
+ /* Stats */
+ int request_num; /* API calls */
+ int uuid_num; /* request to the program */
 
 
  /* Callback function to retrieve data from request
@@ -53,6 +56,8 @@
 /* Makes the GET Request using libcurl */
  void execute_curl (struct status_elem *item) {
    DEBUG_PRINT (("execute_curl\n"));
+   /* Stat */
+   request_num++;
 
    /* Check semaphore for avaliability */
    int err = sem_wait (sema);
@@ -151,6 +156,9 @@ int main (int argc, char **argv) {
   }
   /* Init curl */
   curl_global_init (CURL_GLOBAL_ALL);
+  /* Stats */
+  request_num = 0;
+  uuid_num = 0;
 
   /* Loop */
   pthread_t thread;
@@ -168,6 +176,8 @@ int main (int argc, char **argv) {
     strcpy (cpy, buf);
     /* Increment ref_count */
     status_inc ();
+    /* Stat */
+    uuid_num++;
     /* Start new thread on thread_start() */
     pthread_create (&thread, NULL, &thread_start, cpy);
   }
@@ -181,6 +191,13 @@ exit:
   curl_global_cleanup ();
   /* Close sema */
   sem_close (sema);
+
+  /* Stats */
+  printf ("##### EXIT STATS #####\n");
+  printf ("NUMBER OF UUID REQUESTS: %d\n", uuid_num);
+  printf ("NUMBER OF API REQUESTS MADE: %d\n", request_num);
+  printf ("##### #### ##### #####\n");
+
 
   DEBUG_PRINT (("GOODBYE!\n"));
   return 0;
